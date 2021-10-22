@@ -1,0 +1,15 @@
+declare
+	var myArray: integer []
+    var index: integer
+    var minNumber: integer
+enddeclare
+program
+	myArray := [400, 9, 2, 7, 9, 3, 8, 5]
+    minNumber := myArray(0)
+    for (index := 0, index < 7; index:=index+1)
+		if (minNumber > myArray(index)
+           minNumber := myArray(index)
+        endif
+	endfor
+             write ($minNumber)
+endprogram

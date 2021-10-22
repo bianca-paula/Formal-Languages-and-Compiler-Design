@@ -1,0 +1,17 @@
+declare
+	var n : integer
+    var index : integer
+    var sum : float
+    var auxiliarNumber : float
+enddeclare
+program
+            sum := 0
+            index := 0
+            read (n)
+            while (index < n)
+                index := index + 1
+		        read(auxiliarNumber)
+                sum := sum + auxiliarNumber
+	        endwhile
+              write (sum)
+endprogram
