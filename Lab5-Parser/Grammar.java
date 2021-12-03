@@ -1,32 +1,20 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 
 public class Grammar {
-//    N - nonterminals
-//    E - terminals
-//    P - productions
-//    S - starting symbol
     private Set<String> N = new HashSet<>();
     private Set<String> E = new HashSet<>();
-    private HashMap<Set<String>,Set<List<String>>> P = new HashMap<>();
+    private final HashMap<Set<String>, Set<List<String>>> P = new HashMap<>();
     private String S = "";
-    private String grammarFilename;
 
-    public Grammar(String grammarFilename) {
-        this.grammarFilename = grammarFilename;
-        readGrammarFromFile(grammarFilename);
+    public Grammar(String filename) {
+        readFromFile(filename);
     }
 
-    public void setGrammarFilename(String grammarFilename) {
-        this.grammarFilename = grammarFilename;
-    }
-
-    private void readGrammarFromFile(String grammarFilename) {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(grammarFilename));
+    private void readFromFile(String filename) {
+        try{
+            BufferedReader reader = new BufferedReader(new FileReader(filename));
 
             String input = reader.readLine();
             String[] NlineSplit = input.split("=",input.indexOf("="));
@@ -50,7 +38,8 @@ public class Grammar {
 
             this.S = reader.readLine().split("=")[1].strip();
 
-            reader.readLine(); // first and last lines for productions will not contain any relevant information, we only need to check starting from the second until the second-last
+            // first and last lines for productions will not contain any relevant information, we only need to check starting from the second until the second-last
+            reader.readLine();
             String line = reader.readLine();
             while(line != null){
                 if(!line.equals("}")) {
@@ -74,51 +63,48 @@ public class Grammar {
                 }
                 line = reader.readLine();
             }
-
-        } catch (Exception e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
-    public String print_N(){
+    public String printNonTerminals() {
         StringBuilder sb = new StringBuilder("N = { ");
-        for (String n: this.N) {
+        for(String n : N)
             sb.append(n).append(" ");
-        }
         sb.append("}");
         return sb.toString();
     }
 
-    public String print_E(){
+    public String printTerminals() {
         StringBuilder sb = new StringBuilder("E = { ");
-        for (String e: this.E) {
+        for(String e : E)
             sb.append(e).append(" ");
-        }
         sb.append("}");
         return sb.toString();
     }
 
-    public String print_P(){
+    public String printProductions() {
         StringBuilder sb = new StringBuilder("P = { \n");
         P.forEach((lhs, rhs) -> {
             sb.append("\t");
             int count = 0;
-            for(String lh : lhs){
+            for(String lh : lhs) {
                 sb.append(lh);
                 count++;
-                if(count < lhs.size())
+                if(count<lhs.size())
                     sb.append(", ");
             }
-            sb.append("->");
+            sb.append(" -> ");
             count = 0;
             for(List<String> rh : rhs){
-                for (String r : rh){
+                for(String r : rh) {
                     sb.append(r).append(" ");
                 }
                 count++;
-                if(count < rhs.size())
+                if (count < rhs.size())
                     sb.append("| ");
+
             }
             sb.append("\n");
         });
@@ -126,27 +112,29 @@ public class Grammar {
         return sb.toString();
     }
 
-    public String print_P_forNonTerminal(String nonTerminal){
+    public String printProductionsForNonTerminal(String nonTerminal){
         StringBuilder sb = new StringBuilder();
-        for (Set<String> lhs : P.keySet()){
-            if(lhs.contains(nonTerminal)){
+
+        for(Set<String> lhs : P.keySet()) {
+            if(lhs.contains(nonTerminal)) {
                 sb.append(nonTerminal).append(" -> ");
                 Set<List<String>> rhs = P.get(lhs);
                 int count = 0;
-                for(List<String> rh : rhs){
-                    for(String r : rh){
+                for (List<String> rh : rhs) {
+                    for(String r : rh) {
                         sb.append(r).append(" ");
                     }
                     count++;
-                    if(count < rhs.size())
+                    if (count < rhs.size())
                         sb.append("| ");
                 }
             }
         }
+
         return sb.toString();
     }
 
-    public boolean isCFG(){
+    public boolean checkIfCFG(){
         var checkStartingSymbol = false;
         for(Set<String> lhs : P.keySet())
             if (lhs.contains(S)) {
@@ -162,11 +150,40 @@ public class Grammar {
             else if(!N.contains(lhs.iterator().next()))
                 return false;
 
+            Set<List<String>> rhs = P.get(lhs);
 
+            for(List<String> rh : rhs) {
+                for (String r : rh) {
+                    if(!(N.contains(r) || E.contains(r) || r.equals("epsilon")))
+                        return false;
+                }
+            }
         }
         return true;
     }
 
+    public Set<String> getN() {
+        return N;
+    }
 
+    public Set<String> getE() {
+        return E;
+    }
 
+    public HashMap<Set<String>, Set<List<String>>> getP() {
+        return P;
+    }
+
+    public String getS() {
+        return S;
+    }
+
+    public Set<List<String>> getProductionForNonterminal(String nonTerminal) {
+        for (Set<String> lhs : P.keySet()) {
+            if (lhs.contains(nonTerminal)) {
+                return P.get(lhs);
+            }
+        }
+        return new HashSet<>();
+    }
 }
