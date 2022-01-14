@@ -1,0 +1,88 @@
+%{
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include "y.tab.h"
+int line = 0;
+%}
+
+%option noyywrap
+%option caseless
+
+IDENTIFIER              ([_a-zA-Z][a-zA-Z0-9_]{0,255})
+INTEGER_CONSTANT        ([+-]?[1-9][0-9]*)|0
+CHARACTER_CONSTANT      \'[a-zA-Z0-9]\'
+STRING_CONSTANT         \"[-a-zA-Z0-9_:;!?.+/%*&#<> ^]*\"
+BOOLEAN_CONSTANT        true|false
+
+
+%%
+
+declare                         {printf("Reserved word %s\n", yytext);}
+program                         {printf("Reserved word %s\n", yytext); }
+var                             {printf("Reserved word %s\n", yytext);}
+integer                         {printf("Reserved word %s\n", yytext); }
+string                          {printf("Reserved word %s\n", yytext);}
+float                           {printf("Reserved word %s\n", yytext); }
+bool                            {printf("Reserved word %s\n", yytext); }
+if                              {printf("Reserved word %s\n", yytext); }
+while                           {printf("Reserved word %s\n", yytext); }
+read                            {printf("Reserved word %s\n", yytext); }
+write                           {printf("Reserved word %s\n", yytext);}
+for                             {printf("Reserved word %s\n", yytext); }
+then                            {printf("Reserved word %s\n", yytext); }
+else                            {printf("Reserved word %s\n", yytext); }
+endprogram                      {printf("Reserved word %s\n", yytext);}
+enddeclare                      {printf("Reserved word %s\n", yytext);}
+endif                           {printf("Reserved word %s\n", yytext);}
+endwhile                        {printf("Reserved word %s\n", yytext);}
+endfor                          {printf("Reserved word %s\n", yytext);}
+and                             {printf("Reserved word: %s\n", yytext);}
+or                              {printf("Reserved word: %s\n", yytext);}
+
+":"                             {printf( "Separator: %s\n", yytext );}
+";"                             {printf( "Separator: %s\n", yytext );}
+","                             {printf( "Separator: %s\n", yytext );}
+"."                             {printf( "Separator: %s\n", yytext );}
+"{"                             {printf( "Separator: %s\n", yytext );}
+"}"                             {printf( "Separator: %s\n", yytext );}
+"("                             {printf( "Separator: %s\n", yytext );}
+")"                             {printf( "Separator: %s\n", yytext );}
+"["                             {printf( "Separator: %s\n", yytext );}
+"]"                             {printf( "Separator: %s\n", yytext );}
+"+"                             {printf( "Operator: %s\n", yytext );}
+"-"                             {printf( "Operator: %s\n", yytext );}
+"*"                             {printf( "Operator: %s\n", yytext );}
+"/"                             {printf( "Operator: %s\n", yytext );}
+"<"                             {printf( "Operator: %s\n", yytext );}
+">"                             {printf( "Operator: %s\n", yytext );}
+"<="                            {printf( "Operator: %s\n", yytext );}
+">="                            {printf( "Operator: %s\n", yytext );}
+"!="                            {printf( "Operator: %s\n", yytext );}
+"=="                            {printf( "Operator: %s\n", yytext );}
+":="                            {printf( "Operator: %s\n", yytext );}
+"!"                             {printf( "Operator: %s\n", yytext );}
+{INTEGER_CONSTANT}              {printf("Integer const: %s\n",yytext);}
+{CHARACTER_CONSTANT}            {printf("Char const: %s\n",yytext);}
+{BOOLEAN_CONSTANT}              {printf("Bool const: %s\n",yytext);}
+{STRING_CONSTANT}               {printf("String const: %s\n",yytext);}
+{IDENTIFIER}                    {printf("Identifier: %s\n",yytext);}
+
+[ \t]                           /* eat up whitespace */
+[\n]                            {line++;}
+[+-]?0[0-9]* {printf("Illegal constant at line %d\n", line); return -1;}
+
+\'[a-zA-Z0-9]{2,}\' {printf("Character of length >=2 at line %d\n", line); return -1;}
+.                               {printf("Error at line %d\n", line);}
+%%
+main( argc, argv )
+int argc;
+char **argv;
+{
+    ++argv, --argc; /* skip over program name */
+    if ( argc > 0 )
+    yyin = fopen( argv[0], "r" );
+    else
+     yyin = stdin;
+    yylex();
+}
