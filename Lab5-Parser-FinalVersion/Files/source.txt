@@ -1,0 +1,10 @@
+<head>
+ int one = 1;
+ int two = 2;
+ int three = 3;
+ int sum = 0;
+</head>
+<body>
+sum = one plus two plus three;
+Log (sum);
+</body>
